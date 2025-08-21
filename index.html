@@ -154,7 +154,7 @@
         // =================================================================
         // !! 重要 !! 请将您最新部署的Google Apps Script网址粘贴到下面
         // =================================================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoDphC-E_tTz0xYjt0ei1GrLbSbCbeCNj9AFEOLHRV2YIP3W9Ud2VE4QNS7vL3YTtW/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGt78cbZdU06rBBK9BJxmYiY7syzKc-zJ61rZ5IypXvqqcCymj7rW9vM11r3T48TGk/exec';
 
         // --- 以下为程序核心代码 ---
         
@@ -288,7 +288,7 @@
             });
 
             // 这就是【最终修正版】的判断条件！
-            if (shouldSendData && SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbzoDphC-E_tTz0xYjt0ei1GrLbSbCbeCNj9AFEOLHRV2YIP3W9Ud2VE4QNS7vL3YTtW/exec') {
+            if (shouldSendData && SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbyGt78cbZdU06rBBK9BJxmYiY7syzKc-zJ61rZ5IypXvqqcCymj7rW9vM11r3T48TGk/exec') {
                 const dataToSend = { studentInfo, userAnswers };
                 const encodedData = btoa(JSON.stringify(dataToSend));
                 
