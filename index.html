@@ -150,7 +150,11 @@
             { fullSentence: "Sarang burung tempua yang bergayutan di ranting pohon itu menarik perhatian kami.", error: "di", answer: ["pada"], explanation: "Kata sendi 'pada' digunakan untuk menunjukkan tempat bagi perbuatan pada sesuatu." },
             { fullSentence: "Saya suka menanam pokok bunga di waktu lapang.", error: "di", answer: ["pada"], explanation: "Kata sendi nama 'pada' digunakan untuk menunjukkan keterangan waktu." }
         ];
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOYOPHO2WCYpfiwbHjCRo6SFCSvNbxmps4Oxc-fKpaFM_QexzvQC_7nISQUsP8Thph/exec';
+        
+        // =================================================================
+        // !! 重要 !! 请将您最新部署的Google Apps Script网址粘贴到下面
+        // =================================================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoDphC-E_tTz0xYjt0ei1GrLbSbCbeCNj9AFEOLHRV2YIP3W9Ud2VE4QNS7vL3YTtW/exec';
 
         // --- 以下为程序核心代码 ---
         
@@ -284,7 +288,7 @@
             });
 
             // 这就是【最终修正版】的判断条件！
-            if (shouldSendData && SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbzOYOPHO2WCYpfiwbHjCRo6SFCSvNbxmps4Oxc-fKpaFM_QexzvQC_7nISQUsP8Thph/exec') {
+            if (shouldSendData && SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbzoDphC-E_tTz0xYjt0ei1GrLbSbCbeCNj9AFEOLHRV2YIP3W9Ud2VE4QNS7vL3YTtW/exec') {
                 const dataToSend = { studentInfo, userAnswers };
                 const encodedData = btoa(JSON.stringify(dataToSend));
                 
