@@ -152,33 +152,12 @@
         ];
         
         // =================================================================
-        // !! 重要 !! 请将您最新部署的Google Apps Script网址粘贴到下面
+        // !! 重要 !! 请将您从Google Form获得的链接粘贴到下面
         // =================================================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGt78cbZdU06rBBK9BJxmYiY7syzKc-zJ61rZ5IypXvqqcCymj7rW9vM11r3T48TGk/exec';
+        const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSea12z_NLkiSad_UxmgVm7ATWTHlgsDhaIofiPhX_GlGi6jWQ/viewform?usp=header';
 
         // --- 以下为程序核心代码 ---
         
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const reportData = urlParams.get('data');
-            if (reportData) {
-                try {
-                    const decodedData = JSON.parse(atob(reportData));
-                    studentInfo = decodedData.studentInfo;
-                    userAnswers = decodedData.userAnswers;
-                    score = userAnswers.filter(a => a.isCorrect).length;
-                    document.getElementById('student-info').style.display = 'none';
-                    document.getElementById('quiz-section').style.display = 'none';
-                    showReport(false);
-                } catch (e) {
-                    console.error("无法解析报告数据:", e);
-                    document.getElementById('student-info').classList.add('active');
-                }
-            } else {
-                document.getElementById('student-info').classList.add('active');
-            }
-        });
-
         let shuffledQuestions = [];
         let currentQuestionIndex = 0;
         let score = 0;
@@ -258,7 +237,30 @@
             else { showReport(true); }
         }
         
-        function showReport(shouldSendData) {
+        async function getFormEntryIds(formUrl) {
+            try {
+                const response = await fetch(formUrl);
+                const htmlText = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                const entryIds = {};
+                const inputs = doc.querySelectorAll('div[data-params*="entry."]');
+                inputs.forEach(input => {
+                    const params = input.getAttribute('data-params');
+                    const nameMatch = params.match(/\[\["(.+?)"/);
+                    const entryIdMatch = params.match(/entry\.(\d+)/);
+                    if (nameMatch && entryIdMatch) {
+                        entryIds[nameMatch[1]] = `entry.${entryIdMatch[1]}`;
+                    }
+                });
+                return entryIds;
+            } catch (error) {
+                console.error('无法获取Google Form Entry IDs:', error);
+                return null;
+            }
+        }
+        
+        async function showReport(shouldSendData) {
             quizSection.style.display = 'none';
             reportSection.classList.add('active');
             const totalQuestions = userAnswers.length;
@@ -287,20 +289,35 @@
                 reviewContainer.appendChild(reviewItem);
             });
 
-            // 这就是【最终修正版】的判断条件！
-            if (shouldSendData && SCRIPT_URL && SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbyGt78cbZdU06rBBK9BJxmYiY7syzKc-zJ61rZ5IypXvqqcCymj7rW9vM11r3T48TGk/exec') {
-                const dataToSend = { studentInfo, userAnswers };
-                const encodedData = btoa(JSON.stringify(dataToSend));
+            if (shouldSendData && FORM_URL && FORM_URL !== 'https://docs.google.com/forms/d/e/1FAIpQLSea12z_NLkiSad_UxmgVm7ATWTHlgsDhaIofiPhX_GlGi6jWQ/viewform?usp=header') {
+                const entryIds = await getFormEntryIds(FORM_URL.replace('/viewform', '/viewform?usp=sf_link'));
+                if (!entryIds) {
+                    console.error("无法提交成绩，因为获取不到Entry IDs。");
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append(entryIds['提交时间'], new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }));
+                formData.append(entryIds['姓名'], studentInfo.name);
+                formData.append(entryIds['分院'], studentInfo.branch);
+                formData.append(entryIds['年级'], studentInfo.grade);
+                formData.append(entryIds['得分'], score);
+                formData.append(entryIds['正确率'], percentage + '%');
+                formData.append(entryIds['测验主题'], QUIZ_TOPIC);
+                formData.append(entryIds['详细数据'], JSON.stringify(userAnswers, null, 2));
+
+                const postUrl = FORM_URL.replace('/viewform', '/formResponse');
                 
-                const reportPayload = {
-                    name: studentInfo.name, branch: studentInfo.branch, grade: studentInfo.grade,
-                    score: score, total: totalQuestions, percentage: percentage,
-                    quizTopic: QUIZ_TOPIC, answersData: encodedData
-                };
-                fetch(SCRIPT_URL, {
-                    method: 'POST', mode: 'cors', body: JSON.stringify(reportPayload),
-                    headers: { 'Content-Type': 'application/json' }
-                }).then(r => r.json()).then(d => console.log(d.result === 'success' ? '成绩记录成功!' : '记录失败')).catch(e => console.error('记录错误:', e));
+                try {
+                    await fetch(postUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: formData
+                    });
+                    console.log('成绩已成功提交！');
+                } catch (error) {
+                    console.error('提交成绩时出错:', error);
+                }
             }
         }
     </script>
