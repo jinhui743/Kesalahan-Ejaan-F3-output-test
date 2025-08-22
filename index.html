@@ -117,9 +117,10 @@
         const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSd77AOWGYiC6QWqKQLs1ktDX2Mz2gSs5D7-9AFEKM18QG2dFQ/viewform';
 
         // =================================================================
-        // !! 关键 !! 这里已经填入了您专属的7个Entry ID
+        // !! 关键 !! 这里已经填入了您专属的8个Entry ID
         // =================================================================
         const entryIds = {
+            "提交时间": "entry.1104502796",
             "姓名":     "entry.1734280046",
             "分院":     "entry.324392523",
             "年级":     "entry.334192525",
@@ -179,6 +180,7 @@
                 const reportLink = window.location.href.split('?')[0] + '?data=' + encodedData;
 
                 const formData = new FormData();
+                formData.append(entryIds['提交时间'], new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }));
                 formData.append(entryIds['姓名'], studentInfo.name);
                 formData.append(entryIds['分院'], studentInfo.branch);
                 formData.append(entryIds['年级'], studentInfo.grade);
